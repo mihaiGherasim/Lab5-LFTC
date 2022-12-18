@@ -1,0 +1,7 @@
+S->E
+S->B
+E->&
+B->a
+B->bSCe
+C->&
+C->;SC
