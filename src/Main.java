@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
@@ -125,7 +126,7 @@ public class Main {
 
     private static HashMap<String, Set<String>> getFollow(HashMap<String, List<String>> prods, String filename, HashMap<String, Set<String>> first) throws IOException {
         HashMap<String, Set<String>> follow = new HashMap<>();
-        for (String key: prods.keySet()) {
+        for (String key: getNet(filename)) {
             follow.put(key, new HashSet<>());
         }
 
@@ -145,13 +146,23 @@ public class Main {
                             List<String> firstForSequence = getFirstForSequence(beta, first);
                             if(firstForSequence.contains("&")){
                                 firstForSequence.remove("&");
-                                for(String terminal : firstForSequence){
-                                    if(!follow.get(character).contains(terminal)){
-                                        follow.get(character).add(terminal);
-                                        semaphore = true;
+                                if(firstForSequence.size() != 0) {
+                                    for (String terminal : firstForSequence) {
+                                        if (!follow.get(character).contains(terminal)) {
+                                            follow.get(character).add(terminal);
+                                            semaphore = true;
+                                        }
+                                        for (String terminalFromFollow : follow.get(key)) {
+                                            if (!follow.get(character).contains(terminalFromFollow)) {
+                                                follow.get(character).add(terminalFromFollow);
+                                                semaphore = true;
+                                            }
+                                        }
                                     }
-                                    for(String terminalFromFollow : follow.get(key)){
-                                        if(!follow.get(character).contains(terminalFromFollow)) {
+                                }
+                                else{
+                                    for (String terminalFromFollow : follow.get(key)) {
+                                        if (!follow.get(character).contains(terminalFromFollow)) {
                                             follow.get(character).add(terminalFromFollow);
                                             semaphore = true;
                                         }
@@ -160,6 +171,7 @@ public class Main {
                             }
                             else{
                                 for(String terminal : firstForSequence) {
+                                    System.out.println(character);
                                     if (!follow.get(character).contains(terminal)) {
                                         follow.get(character).add(terminal);
                                         semaphore = true;
@@ -231,7 +243,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
-        String filename = "gramatica7.txt";
+        String filename = "gramatica10.txt";
 
         HashMap<String, List<String>> prods = (HashMap<String, List<String>>) getProd(filename);
         HashMap<String, Set<String>> first = getFirst(prods);
@@ -239,13 +251,17 @@ public class Main {
         HashMap<String, Integer> indexesForTerAndNeter = new HashMap<>();
         List<List<Pair<String, Integer>>> llTable = new ArrayList<>();
         List<String> all = makeOneList(getTer(filename), getNet(filename));
+        System.out.println(follow);
         getIndexes(indexesForTerAndNeter, all);
         initializeTable(llTable, getTer(filename), all, indexesForTerAndNeter);
         List<Pair> productions = populateTable(llTable, prods, first, follow, indexesForTerAndNeter);
         Scanner scan= new Scanner(System.in);
-        System.out.print(">>>");
-        String sequenceToBeVerified = scan.nextLine();
-        String result = verifySequence(llTable, indexesForTerAndNeter, filename, sequenceToBeVerified);
+//        System.out.print(">>>");
+//        String sequenceToBeVerified = scan.nextLine();
+        String fipFilename = "fip1.txt";
+        String sequenceFromFip = sequenceFromFip(fipFilename);
+        System.out.println("Sequence from built from fip is: "+sequenceFromFip);
+        String result = verifySequence(llTable, indexesForTerAndNeter, filename, sequenceFromFip);
         if(result != null){
             System.out.println(productions);
             System.out.println(result);
@@ -255,6 +271,19 @@ public class Main {
 
         }
 
+
+    }
+
+    private static String sequenceFromFip(String filename) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(filename));
+        String line = bufferedReader.readLine();
+        StringBuilder sequence= new StringBuilder();
+        while (line!=null){
+            String[] split = line.split("~");
+            sequence.append(split[1]);
+            line= bufferedReader.readLine();
+        }
+        return sequence.toString();
     }
 
     private static String verifySequence(List<List<Pair<String, Integer>>> llTable, HashMap<String, Integer> indexesForTerAndNeter, String filename, String sequenceToBeVerified) throws IOException {
@@ -270,6 +299,7 @@ public class Main {
 
             Pair<String, Integer> valueFromTable = llTable.get(indexesForTerAndNeter.get(firstCharFromStack)).get(indexesForTerAndNeter.get(firstCharFromInput));
             if(valueFromTable.getRight() == 0 && valueFromTable.getLeft().equals(" ")){
+                System.out.println(input);
                 return null;
             }
             if(valueFromTable.getLeft().equals("acc")){
@@ -283,6 +313,7 @@ public class Main {
                 input = firstCharFromInput + input;
             }
         }
+        System.out.println(input);
         return null;
     }
 
@@ -293,22 +324,27 @@ public class Main {
             for(String str : prods.get(key)){
                 Pair<String, Integer> newProd = new Pair<>(key+"->"+str, i);
                 prod.add(newProd);
-                HashMap<String, Set<String>> firstOrFollow;
+                Set<String> firstOrFollow;
                 if(!str.equals("&")) {
-                    firstOrFollow = first;
+                    firstOrFollow = new HashSet<>(getFirstForSequence(str, first));
                 }
                 else {
-                    firstOrFollow = follow;
+                    firstOrFollow = follow.get(key);
                 }
-                for (String firsts : firstOrFollow.get(key)) {
-                    if(!firsts.equals("&")) {
+
+                for (String firsts : firstOrFollow){
+                    if (!firsts.equals("&")) {
                         Pair<String, Integer> pair = llTable.get(indexesForTerAndNeter.get(key)).get(indexesForTerAndNeter.get(firsts));
                         if (!pair.getLeft().equals(" ") && !pair.getRight().equals(0)) {
+                            System.out.println(pair);
+                            System.out.println(key +" " + str);
+                            System.out.println(firstOrFollow);
                             return null;
                         } else {
                             llTable.get(indexesForTerAndNeter.get(key)).get(indexesForTerAndNeter.get(firsts)).setLeft(str);
                             llTable.get(indexesForTerAndNeter.get(key)).get(indexesForTerAndNeter.get(firsts)).setRight(i);
                         }
+
                     }
                 }
                 i++;

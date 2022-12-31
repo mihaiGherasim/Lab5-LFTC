@@ -1,0 +1,23 @@
+#include<iostream>~d
+\n~c
+using~e
+namespace~f
+std~g
+;~h
+\n~c
+int~k
+a~i
+;~h
+\n~c
+int main~a
+(~m
+)~n
+{~o
+\n~c
+cin~p
+>>~q
+a~i
+;~h
+\n~c
+}~s
+\n~c

@@ -1,0 +1,37 @@
+dcefghckihcamnocbc
+
+
+if~t
+(~m
+b~i
+>~2
+a~i
+)~n
+{~o
+\n~c
+b~i
+-~w
+a~i
+;~h
+\n~c
+}~s
+\n~c
+
+
+dcefghckihcamnocpqihcsc
+
+
+
+#include<iostream>
+using namespace std;
+int main(){
+    int a, b, cmmdc;
+    cin>>a;
+    cin>>b;
+    while(a!=b){
+        if(a>b)a=a-5;
+        if(b>a)b=b-a;
+    };
+    cmmdc=a;
+    cout<<a;
+}

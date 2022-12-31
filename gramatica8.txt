@@ -1,0 +1,5 @@
+S->aBXYZ
+X->&
+Y->&
+Z->&
+A->SaBbXc
