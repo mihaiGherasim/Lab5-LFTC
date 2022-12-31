@@ -260,7 +260,7 @@ public class Main {
 //        String sequenceToBeVerified = scan.nextLine();
         String fipFilename = "fip1.txt";
         String sequenceFromFip = sequenceFromFip(fipFilename);
-        System.out.println("Sequence from built from fip is: "+sequenceFromFip);
+        System.out.println("Sequence built from fip is: "+sequenceFromFip);
         String result = verifySequence(llTable, indexesForTerAndNeter, filename, sequenceFromFip);
         if(result != null){
             System.out.println(productions);
